@@ -1,21 +1,7 @@
-# import unicodedata as ud
-import unicodedata
-
-
-def categorize(c):
-    try:
-        cat = unicodedata.category(c)
-    except ValueError:
-        print "Saw '%s', code '%d'"
-        raise
-    return cat
-
-class UD(object):
-    def category(self, c):
-        return categorize(c)
-ud = UD()
-
-    
+"""
+Utilities for working with streams and characters.
+"""
+import unicodedata as ud
 
 #
 # Character class checkers
