@@ -115,8 +115,8 @@ class NodeFactory(object):
     def create_call_expression(self, expression, arguments):
         return CallExpression(expression, arguments)
 
-    def create_new_expression(self, expression):
-        return NewExpression(expression)
+    def create_new_expression(self, expression, arguments):
+        return NewExpression(expression, arguments)
 
     def create_unary_operation(self, op, expression):
         return UnaryOperation(op, expression)

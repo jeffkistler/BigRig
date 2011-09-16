@@ -262,7 +262,7 @@ class BaseParser(object):
         self.expect(RIGHT_PAREN)
         return result
 
-    def parse_member_expression(self):
+    def parse_member_expression(self, allow_call=True):
         """
         MemberExpression ::
           PrimaryExpression
@@ -270,18 +270,20 @@ class BaseParser(object):
           MemberExpression '[' Expression ']'
           MemberExpression '.' Identifier
           'new' MemberExpression Arguments
-          CallExpression
         """
         type = self.peek()
-        if type == FUNCTION:
+        if type == NEW:
+            self.expect(NEW)
+            expression = self.parse_member_expression(False)
+            arguments = self.parse_arguments()
+            result = self.create_new_expression(expression, arguments)
+        elif type == FUNCTION:
             result = self.parse_function_expression()
-        elif type == NEW:
-            result = self.parse_new_expression()
         else:
             result = self.parse_primary_expression()
-        return self.parse_member_expression_tail(result)
+        return self.parse_member_expression_tail(allow_call, result)
 
-    def parse_member_expression_tail(self, node):
+    def parse_member_expression_tail(self, allow_call, node):
         """
         ( '(' Arguments ')' | '[' Expression ']' | '.' Expression ) *
         """
@@ -295,24 +297,17 @@ class BaseParser(object):
             index = self.parse_expression()
             node = self.create_bracket_property(node, index)
             self.expect(RIGHT_BRACKET)
-        elif type == LEFT_PAREN:
+        elif type == LEFT_PAREN and allow_call:
             arguments = self.parse_arguments()
             node = self.create_call_expression(node, arguments)
         else:
             return node
-        return self.parse_member_expression_tail(node)
-
-    def parse_new_expression(self):
-        """
-        NewExpression ::
-          'new' MemberExpression Arguments?
-        """
-        self.expect(NEW)
-        expression = self.parse_member_expression()
-        return self.create_new_expression(expression)
+        return self.parse_member_expression_tail(allow_call, node)
 
     def parse_left_hand_side_expression(self):
         """
+        MemberExpression parsing handles these two productions.
+
         LeftHandSideExpression ::
           NewExpression
           CallExpression
@@ -387,7 +382,6 @@ class BaseParser(object):
                     op.value, lhs, rhs
                 )
         return lhs
-
 
     def parse_assignment_expression(self):
         """
@@ -906,4 +900,23 @@ def parse_string(string, filename=None, line=0, column=0, encoding='utf-8'):
     parser = make_string_parser(
         string, filename, line, column, encoding
     )
+    return parser.parse()
+
+def make_file_parser(fd, filename=None, line=0, column=0, encoding='utf-8'):
+    """
+    Make a parser for the given file.
+    """
+    from bigrig.scanner import make_file_scanner, TokenStreamAllowReserved
+    scanner = make_file_scanner(
+        fd, filename, line, column, encoding
+    )
+    stream = TokenStreamAllowReserved(scanner)
+    return Parser(stream)
+
+def parse_file(filename, line=0, column=0, encoding='utf-8'):
+    """
+    Parse the file specified by filename into an abstract syntax tree.
+    """
+    fd = open(filename, 'rb')
+    parser = make_file_parser(fd, filename, line, column, encoding)
     return parser.parse()

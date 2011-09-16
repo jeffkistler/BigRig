@@ -172,18 +172,26 @@ class TestParser(unittest.TestCase):
 
     def testParseMemberExpressionNewNoArguments(self):
         string = "new foo"
+        ParseException = self.getParserModule().ParseException
         parser = self.makeStringParser(string)
-        result = parser.parse_member_expression()
-        self.assertIsNode('NewExpression', result)
-        self.assertIsNode('Name', result.expression)
+        self.assertRaises(ParseException, parser.parse_member_expression)
 
     def testParseMemberExpressionNewArguments(self):
         string = "new foo(bar)"
         parser = self.makeStringParser(string)
         result = parser.parse_member_expression()
         self.assertIsNode('NewExpression', result)
-        self.assertIsNode('CallExpression', result.expression)
+        self.assertEqual(1, len(result.arguments))
 
+    def testParseMemberExpressionNewCompilcated(self):
+        string = "new Something(argument1, argument2).method()[property]"
+        parser = self.makeStringParser(string)
+        result = parser.parse_member_expression()
+        self.assertIsNode('BracketProperty', result)
+        self.assertIsNode('CallExpression', result.object)
+        self.assertIsNode('DotProperty', result.object.expression)
+        self.assertIsNode('NewExpression', result.object.expression.object)
+        
     def testParseMemberExpressionFunctionExpression(self):
         string = 'function(){;}'
         parser = self.makeStringParser(string)

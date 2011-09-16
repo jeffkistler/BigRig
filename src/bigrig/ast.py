@@ -170,7 +170,7 @@ class CallExpression(Expression):
 
 class NewExpression(Expression):
     abstract = False
-    fields = ('expression',)
+    fields = ('expression', 'arguments')
 
 class UnaryOperation(Expression):
     abstract = False
