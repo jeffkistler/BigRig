@@ -784,7 +784,7 @@ class BaseParser(object):
         if next == CATCH:
             self.expect(CATCH)
             self.expect(LEFT_PAREN)
-            name = self.expect(IDENTIFIER).value
+            name = self.create_name(self.expect(IDENTIFIER).value)
             self.expect(RIGHT_PAREN)
             catch_block = self.parse_block_statement()
             next = self.peek()
