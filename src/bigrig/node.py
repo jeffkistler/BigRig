@@ -52,6 +52,9 @@ class Node(object):
                 ))
             for name, arg, in izip(self.fields, fields):
                 setattr(self, name, arg)
+        else:
+            for field in self.fields:
+                setattr(self, field, None)
         for attr in self.attributes:
             setattr(self, attr, attributes.pop(attr, None))
         if attributes:
@@ -62,7 +65,7 @@ class Node(object):
         Yields the name and value of each of this node's fields.
         """
         for name in self.fields:
-            yield name, getattr(self, name)
+            yield name, getattr(self, name, None)
 
     def iter_children(self):
         """
