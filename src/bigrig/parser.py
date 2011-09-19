@@ -867,10 +867,10 @@ class BaseParser(object):
         return statements
 
     def parse_program(self):
-        return self.parse_source_elements()
+        return self.create_program(self.parse_source_elements())
 
     def parse(self):
-        return self.parse_source_elements()
+        return self.parse_program()
 
 class Parser(NodeFactory, BaseParser):
     """

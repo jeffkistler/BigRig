@@ -162,5 +162,8 @@ class NodeFactory(object):
 
     def create_source_elements(self, statements):
         return SourceElements(statements)
+
+    def create_program(self, statements):
+        return Program(statements)
     
         

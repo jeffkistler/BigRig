@@ -630,4 +630,4 @@ class TestParser(unittest.TestCase):
             result = parser.parse_program()
             parser = self.makeStringParser(expected)
             expected = parser.parse_program()
-            self.assertEqual(len(expected), len(result))
+            self.assertEqual(len(expected.statements), len(result.statements))

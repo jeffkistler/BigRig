@@ -234,3 +234,6 @@ class SourceElements(Expression):
     abstract = False
     fields = ('statements',)
 
+class Program(Node):
+    abstract = False
+    fields = ('statements',)
