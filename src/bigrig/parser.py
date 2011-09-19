@@ -895,7 +895,7 @@ def make_string_parser(string, filename=None, line=0, column=0, encoding='utf-8'
 
 def parse_string(string, filename=None, line=0, column=0, encoding='utf-8'):
     """
-    Parse a given stream into an abstract syntax tree.
+    Parse a given string into an abstract syntax tree.
     """
     parser = make_string_parser(
         string, filename, line, column, encoding
@@ -904,7 +904,7 @@ def parse_string(string, filename=None, line=0, column=0, encoding='utf-8'):
 
 def make_file_parser(fd, filename=None, line=0, column=0, encoding='utf-8'):
     """
-    Make a parser for the given file.
+    Make a parser for the given file descriptor.
     """
     from bigrig.scanner import make_file_scanner, TokenStreamAllowReserved
     scanner = make_file_scanner(
