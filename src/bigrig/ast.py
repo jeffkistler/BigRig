@@ -68,6 +68,10 @@ class IfStatement(Statement):
     abstract = False
     fields = ('condition', 'then_statement', 'else_statement')
 
+class Throw(Statement):
+    abstract = False
+    fields = ('exception',)
+
 class TryStatement(Statement):
     abstract = False
     fields = ('try_block', 'catch_var', 'catch_block', 'finally_block')
@@ -216,9 +220,6 @@ class Assignment(Expression):
 # Other stuff
 #
 
-class Throw(Expression):
-    abstract = False
-    fields = ('exception',)
 
 class Function(Node):
     abstract = True
