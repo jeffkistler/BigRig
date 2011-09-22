@@ -106,6 +106,9 @@ class NodeFactory(object):
     def create_array_literal(self, elements):
         return ArrayLiteral(elements)
 
+    def create_elision(self):
+        return Elision()
+
     def create_dot_property(self, object, key):
         return DotProperty(object, key)
 

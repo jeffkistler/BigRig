@@ -151,11 +151,25 @@ class BaseParser(object):
     def parse_array_literal(self):
         """
         ArrayLiteral ::
-          '[' Expression? (',' Expression?)* ']'
+          '[' Elision? ']'
+          '[' ElementList ']'
+          '[' ElementList ',' Elision? ']'
+
+        ElementList ::
+           Elision? AssignmentExpression
+           ElementList ',' Elision? AssignmentExpression
+        
+        Elision ::
+           ','
+           Elision ','
         """
         values = []
         self.expect(LEFT_BRACKET)
         while self.peek() != RIGHT_BRACKET:
+            if self.peek() == COMMA:
+                self.expect(COMMA)
+                values.append(self.create_elision())
+                continue
             element = self.parse_assignment_expression()
             values.append(element)
             if self.peek() != RIGHT_BRACKET:

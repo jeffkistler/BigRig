@@ -151,6 +151,9 @@ class ArrayLiteral(Literal):
     abstract = False
     fields = ('elements',)
 
+class Elision(Expression):
+    abstract = False
+
 #
 # Operators
 #

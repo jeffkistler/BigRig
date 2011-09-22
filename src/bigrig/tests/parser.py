@@ -86,6 +86,16 @@ class TestParser(unittest.TestCase):
         for i in xrange(3):
             self.assertIsNode('NumberLiteral', result.elements[i])
 
+    def testParseArrayLiteralElision(self):
+        string = "[1,,2]"
+        parser = self.makeStringParser(string)
+        result = parser.parse_array_literal()
+        self.assertIsNode('ArrayLiteral', result)
+        self.assertEquals(3, len(result.elements))
+        self.assertIsNode('NumberLiteral', result.elements[0])
+        self.assertIsNode('Elision', result.elements[1])
+        self.assertIsNode('NumberLiteral', result.elements[2])
+
     def testParseRegExpLiteral(self):
         string = "/a*/gi"
         parser = self.makeStringParser(string)
