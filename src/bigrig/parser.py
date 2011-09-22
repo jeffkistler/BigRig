@@ -318,6 +318,25 @@ class BaseParser(object):
             return node
         return self.parse_member_expression_tail(allow_call, node)
 
+    def parse_new_expression(self):
+        """
+        NewExpression ::
+          MemberExpression
+          'new' NewExpression
+        """
+        self.expect(NEW)
+        if self.peek() == NEW:
+            expression = self.parse_new_expression()
+        else:
+            expression = self.parse_member_expression(False)
+        # Since this could be a member expression as well, we need
+        # to parse the arguments and tail.
+        arguments = None
+        if self.peek() == LEFT_PAREN:
+            arguments = self.parse_arguments()
+        node = self.create_new_expression(expression, arguments)
+        return self.parse_member_expression_tail(True, node)
+
     def parse_left_hand_side_expression(self):
         """
         MemberExpression parsing handles these two productions.
@@ -326,6 +345,9 @@ class BaseParser(object):
           NewExpression
           CallExpression
         """
+        if self.peek() == NEW:
+            return self.parse_new_expression()
+        # MemberExpression parsing handles the CallExpression case
         return self.parse_member_expression()
 
     def parse_postfix_expression(self):

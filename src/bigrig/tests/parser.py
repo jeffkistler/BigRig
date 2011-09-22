@@ -180,20 +180,22 @@ class TestParser(unittest.TestCase):
         self.assertIsNode('CallExpression', result)
         self.assertEqual(3, len(result.arguments))
 
-    def testParseMemberExpressionNewNoArguments(self):
+    def testParseNewExpressionNoArguments(self):
         string = "new foo"
-        ParseException = self.getParserModule().ParseException
         parser = self.makeStringParser(string)
-        self.assertRaises(ParseException, parser.parse_member_expression)
+        result = parser.parse_new_expression()
+        self.assertIsNode('NewExpression', result)
+        self.assertIsNode('Name', result.expression)
+        self.assertEqual(None, result.arguments)
 
-    def testParseMemberExpressionNewArguments(self):
+    def testParseNewExpressionArguments(self):
         string = "new foo(bar)"
         parser = self.makeStringParser(string)
         result = parser.parse_member_expression()
         self.assertIsNode('NewExpression', result)
         self.assertEqual(1, len(result.arguments))
 
-    def testParseMemberExpressionNewCompilcated(self):
+    def testParseNewExpressionComplicated1(self):
         string = "new Something(argument1, argument2).method()[property]"
         parser = self.makeStringParser(string)
         result = parser.parse_member_expression()
@@ -201,7 +203,32 @@ class TestParser(unittest.TestCase):
         self.assertIsNode('CallExpression', result.object)
         self.assertIsNode('DotProperty', result.object.expression)
         self.assertIsNode('NewExpression', result.object.expression.object)
-        
+
+    def testParseNewExpressionComplicated2(self):
+        string = 'new Something.Or.Other(argument)'
+        parser = self.makeStringParser(string)
+        result = parser.parse_new_expression()
+        self.assertIsNode('NewExpression', result)
+        self.assertIsNode('DotProperty', result.expression)
+
+    def testParseNewExpressionComplicated3(self):
+        string = 'new new Something()'
+        parser = self.makeStringParser(string)
+        result = parser.parse_new_expression()
+        self.assertIsNode('NewExpression', result)
+        self.assertEqual(None, result.arguments)
+        self.assertIsNode('NewExpression', result.expression)
+
+    def testParseMemberExpressionNewComplicated4(self):
+        string = 'new new Something().Or'
+        parser = self.makeStringParser(string)
+        result = parser.parse_new_expression()
+        self.assertIsNode('NewExpression', result)
+        self.assertEqual(None, result.arguments)
+        self.assertIsNode('DotProperty', result.expression)
+        self.assertIsNode('NewExpression', result.expression.object)
+        self.assertEqual([], result.expression.object.arguments)
+
     def testParseMemberExpressionFunctionExpression(self):
         string = 'function(){;}'
         parser = self.makeStringParser(string)
