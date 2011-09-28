@@ -407,7 +407,7 @@ class BaseParser(object):
             precedence = self.precedence(op.type)
             rhs = self.parse_unary_expression()
             next_precedence = self.precedence(self.peek())
-            while next_precedence >= precedence:
+            while next_precedence > precedence:
                 rhs = self.parse_binary_operator_expression(
                     rhs, next_precedence
                 )

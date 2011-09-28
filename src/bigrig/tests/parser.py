@@ -274,7 +274,7 @@ class TestParser(unittest.TestCase):
         self.assertIsNode('BinaryOperation', result.right)
         self.assertIsNode('NumberLiteral', result.left)
 
-    def testParseBinaryOperatorParenthesesPrecedence(self):
+    def testParseBinaryOperatorParenthesesPrecedence1(self):
         string = "(3 + 4) * 5"
         parser = self.makeStringParser(string)
         result = parser.parse_expression()
@@ -282,16 +282,35 @@ class TestParser(unittest.TestCase):
         self.assertIsNode('BinaryOperation', result.left)
         self.assertIsNode('NumberLiteral', result.right)
 
+    def testParseBinaryOperatorParenthesesPrecedence2(self):
+        string = "a + (b - c)"
+        parser = self.makeStringParser(string)
+        result = parser.parse_expression()
+        self.assertIsNode('BinaryOperation', result)
+        self.assertEqual(u'+', result.op)
+        self.assertIsNode('BinaryOperation', result.right)
+        self.assertEqual(u'-', result.right.op)
+
+    def testParseBinaryOperatorEqualPrecedence(self):
+        string = "a + b - c"
+        parser = self.makeStringParser(string)
+        result = parser.parse_expression()
+        self.assertIsNode('BinaryOperation', result)
+        self.assertEqual(u'-', result.op)
+        self.assertIsNode('BinaryOperation', result.left)
+        self.assertEqual(u'+', result.left.op)
+
+
     def testParseBinaryOperatorMultiplePrecedence(self):
         string = "3 + 4 * 5 + 6"
         parser = self.makeStringParser(string)
         result = parser.parse_expression()
         self.assertIsNode('BinaryOperation', result)
-        self.assertIsNode('NumberLiteral', result.left)
-        self.assertIsNode('BinaryOperation', result.right)
-        self.assertEquals('+', result.right.op)
-        self.assertIsNode('BinaryOperation', result.right.left)
-        self.assertEquals('*', result.right.left.op)
+        self.assertIsNode('BinaryOperation', result.left)
+        self.assertIsNode('NumberLiteral', result.right)
+        self.assertEquals('+', result.left.op)
+        self.assertIsNode('BinaryOperation', result.left.right)
+        self.assertEquals('*', result.left.right.op)
 
     def testParseBinaryOperatorComparison(self):
         string = "3 + 4 && 5 + 6"
