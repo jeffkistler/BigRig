@@ -3,6 +3,7 @@ An ECMAScript 3 parser implementation and various related utilities.
 """
 from bigrig.token import *
 from bigrig.factory import NodeFactory
+from bigrig.ast import Name
 
 class ParseException(Exception):
     """
@@ -114,6 +115,8 @@ class BaseParser(object):
     def is_count_op(self, token):
         return token in COUNT_OPS
 
+    def is_identifier(self, node):
+        return isinstance(node, Name)
     #
     # Literals
     #
@@ -567,8 +570,9 @@ class BaseParser(object):
           Expression ';'
         """
         expression = self.parse_expression()
-        # Do this only if  expression is a name?
         if self.peek() == COLON:
+            if not self.is_identifier(expression):
+                self.raise_unexpected_token(self.next)
             statement = self.parse_labelled_statement()
             return self.create_labelled_statement(expression, statement)
         self.expect_semicolon()
