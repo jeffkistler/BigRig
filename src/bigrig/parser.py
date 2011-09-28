@@ -845,7 +845,7 @@ class BaseParser(object):
         FunctionDeclaration ::
           'function' Identifier '(' ParameterList? ')' '{' FunctionBody '}'
         """
-        return self.create_function_declaration(*self.parse_function())
+        return self.create_function_declaration(*self.parse_function(require_name=True))
 
     def parse_function_expression(self):
         """
@@ -854,7 +854,7 @@ class BaseParser(object):
         """
         return self.create_function_expression(*self.parse_function())
     
-    def parse_function(self):
+    def parse_function(self, require_name=False):
         """
         Generalized function parser.
         """
@@ -862,6 +862,8 @@ class BaseParser(object):
         name = None
         if self.peek() == IDENTIFIER:
             name = self.expect(IDENTIFIER).value
+        elif require_name:
+            self.raise_unexpected_token(self.next())
         self.expect(LEFT_PAREN)
         parameters = self.parse_parameter_list()
         self.expect(RIGHT_PAREN)

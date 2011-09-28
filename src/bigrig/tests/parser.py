@@ -300,7 +300,6 @@ class TestParser(unittest.TestCase):
         self.assertIsNode('BinaryOperation', result.left)
         self.assertEqual(u'+', result.left.op)
 
-
     def testParseBinaryOperatorMultiplePrecedence(self):
         string = "3 + 4 * 5 + 6"
         parser = self.makeStringParser(string)
@@ -647,6 +646,7 @@ class TestParser(unittest.TestCase):
             'continue label;',
             'try { ; } catch(e) { ; }',
             'try { ; } catch(e) { ; } finally { ; }',
+            '(function(){ console.log("Valid!"); })()',
         ]
         ParseException = self.getParserModule().ParseException
         for program in testPrograms:
@@ -662,6 +662,7 @@ class TestParser(unittest.TestCase):
             'throw\n;',
             'throw;',
             'if (a > b)\nelse c = d',
+            'function(){ console.log("Invalid!"); }',
         ]
         ParseException = self.getParserModule().ParseException
         for program in testPrograms:
