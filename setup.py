@@ -13,7 +13,7 @@ setup(
     author = 'Jeff Kistler',
     author_email = 'jeff@jeffkistler.com',
     packages = ['bigrig'],
-    package_dir = {'': 'src'},
+    package_dir = {'bigrig': 'bigrig'},
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
