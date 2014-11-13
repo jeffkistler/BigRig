@@ -957,7 +957,7 @@ def make_string_parser(string, filename=None, line=0, column=0, encoding='utf-8'
     """
     Make a parser for the given string.
     """
-    from bigrig.scanner import make_string_scanner, TokenStreamAllowReserved
+    from .scanner import make_string_scanner, TokenStreamAllowReserved
     scanner = make_string_scanner(
         string, filename, line, column, encoding
     )
@@ -977,7 +977,7 @@ def make_file_parser(fd, filename=None, line=0, column=0, encoding='utf-8'):
     """
     Make a parser for the given file descriptor.
     """
-    from bigrig.scanner import make_file_scanner, TokenStreamAllowReserved
+    from .scanner import make_file_scanner, TokenStreamAllowReserved
     scanner = make_file_scanner(
         fd, filename, line, column, encoding
     )

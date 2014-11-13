@@ -10,7 +10,7 @@ class TestScanner(unittest.TestCase):
 
     def getScannerModule(self):
         if self._scanner_module is None:
-            from bigrig import scanner
+            from bigrig.parser import scanner
             self._scanner_module = scanner
         return self._scanner_module
 

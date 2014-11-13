@@ -1,9 +1,9 @@
 """
 An ECMAScript 3 lexical scanner implementation and various related utilities.
 """
-from bigrig.token import *
-from bigrig.constants import *
-from bigrig.utils import (
+from .token import *
+from .constants import *
+from .utils import (
     is_identifier_start, is_identifier_part, is_whitespace_char,
     is_line_terminator, Locator, Stream
 )
