@@ -2,7 +2,7 @@
 This module contains classes for walking abstract syntax trees and transforming
 them.
 """
-from bigrig.node import Node
+from .node import Node
 
 class NodeVisitor(object):
     """

@@ -2,7 +2,7 @@
 BigRig
 ======
 
-A pure Python ECMAScript 3 parser and engine.
+A pure Python ECMAScript 5.1 parser and engine.
 
 Installation
 ============
@@ -71,41 +71,41 @@ declaration using a ``Parser`` object::
 Playing with the Abstract Syntax Tree
 -------------------------------------
 
-The abstract syntax tree is comprised of ``bigrig.node.Node`` objects, with
-some terminals being expressed as ``list``, ``None`` and ``unicode`` objects.
-To navigate the tree, nodes provide a simple ``fields`` and ``attributes``
-interface. Fields represent child nodes in the parse tree and attributes are
-metadata about the node. To examine a node's fields, an iterable of available
-field attributes is stored in the ``node_object.fields`` attribute and may be
-examined using the ``iter_fields`` generator method, which returns
-``(name, value)`` pairs. If you simply want to iterate over the child values,
-nodes provide an ``iter_children`` generator method.
+The abstract syntax tree is comprised of ``bigrig.parser.node.Node`` objects,
+with some terminals being expressed as ``list``, ``None`` and ``unicode``
+objects. To navigate the tree, nodes provide a simple ``fields`` and
+``attributes`` interface. Fields represent child nodes in the parse tree and
+attributes are metadata about the node. To examine a node's fields, an
+iterable of available field attributes is stored in the ``node_object.fields``
+attribute and may be examined using the ``iter_fields`` generator method,
+which returns ``(name, value)`` pairs. If you simply want to iterate over the
+child values, nodes provide an ``iter_children`` generator method.
 
 To see the available node types that are built by the default ``Parser`` class,
-have a look over the ``bigrig.ast`` module. If these nodes types are
-insufficient for your needs, have a look at the ``bigrig.factory`` module,
-which contains the base node building mixin-class that the default ``Parser``
-class uses to build the abstract syntax tree. Making your own node factory
-parser mixin class will allow you to customize the abstract syntax tree that
-the parser will build.
+have a look over the ``bigrig.parser.ast`` module. If these nodes types are
+insufficient for your needs, have a look at the ``bigrig.parser.factory``
+module, which contains the base node building mixin-class that the default
+``Parser`` class uses to build the abstract syntax tree. Making your own node
+factory parser mixin class will allow you to customize the abstract syntax
+tree that the parser will build.
 
 Tokenizing ECMAScript
 ---------------------
 
-The ECMAScript tokenizing class is found in the ``bigrig.scanner`` module. This
-module provides the utility functions ``make_file_scanner`` and
+The ECMAScript tokenizing class is found in the ``bigrig.parser.scanner``
+module. This module provides the utility functions ``make_file_scanner`` and
 ``make_string_scanner`` to quickly build tokenizers for ECMAScript source files
 and strings respectively. The ``Token`` types are defined within the
 ``bigrig.token`` module, so look there to see what the various lexical tokens
 are. The public interface of the scanner class consists simply of a ``next``
 method, which produces the next lexical token from the input. To facilitate
-parsing source with lookahead, the ``bigrig.scanner.TokenStream`` class
+parsing source with lookahead, the ``bigrig.parser.scanner.TokenStream`` class
 provides a light buffering wrapper around ``Scanner`` objects, adding the
 ``peek`` method which returns the next ``Token`` in the source without
 advancing the stream state. Here's a quick example of tokenizing an ECMAScript
 string::
 
-    from bigrig import scanner
+    from bigrig.parser import make_string_scanner
     source = 'if (token) { console.log(token); } else { console.log("error!"); }'
     scanner_obj = scanner.make_string_scanner(source)
     while True:

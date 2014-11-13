@@ -1,7 +1,7 @@
 """
 Abstract syntax tree node types.
 """
-from bigrig.node import Node
+from .node import Node
 
 #
 # Statements

@@ -1,9 +1,9 @@
 """
 An ECMAScript 3 parser implementation and various related utilities.
 """
-from bigrig.token import *
-from bigrig.factory import NodeFactory
-from bigrig.ast import Name
+from .token import *
+from .factory import NodeFactory
+from .ast import Name
 
 class ParseException(Exception):
     """

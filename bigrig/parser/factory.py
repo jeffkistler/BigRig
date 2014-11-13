@@ -1,4 +1,4 @@
-from bigrig.ast import *
+from .ast import *
 
 class NodeFactory(object):
     """
