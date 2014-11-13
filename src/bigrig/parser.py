@@ -121,19 +121,30 @@ class BaseParser(object):
     # Literals
     #
 
-    def parse_object_literal(self):
+    def parse_property_assignment(self):
         """
-        ObjectLiteral ::
-          '{' (
-            ((Identifier | String | Number) ':' AssignmentExpression))*[',']
-          '}'
+        PropertyAssignment ::
+          PropertyName ':' AssignmentExpression |
+          'get' PropertyName '(){' FunctionBody '}' |
+          'set' PropertyName '(' Identifier '){' FunctionBody '}'
         """
-        self.expect(LEFT_CURLY_BRACE)
-        properties = []
-        while self.peek() != RIGHT_CURLY_BRACE:
-            # Parse the key
-            next = self.next()
-            type = next.type
+        next = self.next()
+        type = next.type
+        if type == IDENTIFIER and next.value in (u'get', u'set'):
+            if next.value == 'get':
+                name = self.expect(IDENTIFIER).value
+                self.expect(LEFT_PAREN)
+                self.expect(RIGHT_PAREN)
+                body = self.parse_function_body()
+                assignment = self.create_property_getter(name, body)
+            elif next.value == 'set':
+                name = self.expect(IDENTIFIER).value
+                self.expect(LEFT_PAREN)
+                parameter = self.expect(IDENTIFIER).value
+                self.expect(RIGHT_PAREN)
+                body = self.parse_function_body()
+                assignment = self.create_property_setter(name, parameter, body)
+        else:
             if type == IDENTIFIER:
                 name = self.create_property_name(next.value)
             elif type == STRING:
@@ -145,9 +156,26 @@ class BaseParser(object):
             self.expect(COLON)
             # Parse the value
             value = self.parse_assignment_expression()
-            if self.peek() != RIGHT_CURLY_BRACE:
-                self.expect(COMMA)
-            properties.append(self.create_object_property(name, value))
+            assignment = self.create_object_property(name, value)
+        if self.peek() != RIGHT_CURLY_BRACE:
+            self.expect(COMMA)
+        return assignment
+
+    def parse_object_literal(self):
+        """
+        ObjectLiteral ::
+          '{' PropertyAssignment*[','] '}'
+
+        Previously:
+        ObjectLiteral ::
+          '{' (
+            ((Identifier | String | Number) ':' AssignmentExpression))*[',']
+          '}'
+        """
+        self.expect(LEFT_CURLY_BRACE)
+        properties = []
+        while self.peek() != RIGHT_CURLY_BRACE:
+            properties.append(self.parse_property_assignment())
         self.expect(RIGHT_CURLY_BRACE)
         return self.create_object_literal(properties)
 
@@ -661,7 +689,8 @@ class BaseParser(object):
                     self.expect(RIGHT_PAREN)
                     self.accept_in = True
                     body = self.parse_statement()
-                    return self.create_for_in_statement(variable_statement, enumerable, body)
+                    declaration = variable_declarations[0]
+                    return self.create_for_in_statement(declaration, enumerable, body)
                 else:
                     initializer = variable_statement
             else:

@@ -139,6 +139,14 @@ class ObjectProperty(Node):
     abstract = False
     fields = ('name', 'value')
 
+class PropertyGetter(Node):
+    abstract = False
+    fields = ('name', 'body')
+
+class PropertySetter(Node):
+    abstract = False
+    fields = ('name', 'parameter', 'body')
+
 class PropertyName(Node):
     abstract = False
     fields = ('value',)

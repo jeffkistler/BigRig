@@ -100,6 +100,12 @@ class NodeFactory(object):
     def create_property_name(self, value):
         return PropertyName(value)
 
+    def create_property_getter(self, name, body):
+        return PropertyGetter(name, body)
+
+    def create_property_setter(self, name, parameter, body):
+        return PropertySetter(name, parameter, body)
+
     def create_regexp_literal(self, pattern, flags):
         return RegExpLiteral(pattern, flags)
 
