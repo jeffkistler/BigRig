@@ -1,7 +1,7 @@
 import unittest
 
-from bigrig.tests.scanner import TestScanner
-from bigrig.tests.parser import TestParser
+from .scanner import TestScanner
+from .parser import TestParser
 
 def test_suite():
     scanner_suite = unittest.makeSuite(TestScanner)

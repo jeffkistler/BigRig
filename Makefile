@@ -2,7 +2,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests src/bigrig/tests
+	nosetests tests
 
 lint:
-	pylint src/bigrig
+	pylint bigrig
