@@ -132,18 +132,32 @@ class BaseParser(object):
         type = next.type
         if type == IDENTIFIER and next.value in (u'get', u'set'):
             if next.value == 'get':
-                name = self.expect(IDENTIFIER).value
-                self.expect(LEFT_PAREN)
-                self.expect(RIGHT_PAREN)
-                body = self.parse_function_body()
-                assignment = self.create_property_getter(name, body)
+                lookahead = self.peek()
+                if lookahead == COLON:
+                    self.expect(COLON)
+                    name = self.create_property_name(next.value)
+                    value = self.parse_assignment_expression()
+                    assignment = self.create_object_property(name, value)
+                else:
+                    name = next.value
+                    self.expect(LEFT_PAREN)
+                    self.expect(RIGHT_PAREN)
+                    body = self.parse_function_body()
+                    assignment = self.create_property_getter(name, body)
             elif next.value == 'set':
-                name = self.expect(IDENTIFIER).value
-                self.expect(LEFT_PAREN)
-                parameter = self.expect(IDENTIFIER).value
-                self.expect(RIGHT_PAREN)
-                body = self.parse_function_body()
-                assignment = self.create_property_setter(name, parameter, body)
+                lookahead = self.peek()
+                if lookahead == COLON:
+                    self.expect(COLON)
+                    name = self.create_property_name(next.value)
+                    value = self.parse_assignment_expression()
+                    assignment = self.create_object_property(name, value)
+                else:
+                    name = next.value
+                    self.expect(LEFT_PAREN)
+                    parameter = self.expect(IDENTIFIER).value
+                    self.expect(RIGHT_PAREN)
+                    body = self.parse_function_body()
+                    assignment = self.create_property_setter(name, parameter, body)
         else:
             if type == IDENTIFIER:
                 name = self.create_property_name(next.value)

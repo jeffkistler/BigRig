@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+import readline
+from bigrig.parser import ParseException
+
+
+class REPL(object):
+    """
+    Read-Evaluate-Print loop.
+    """
+    STATEMENT_PROMPT = '> '
+    INCOMPLETE_PROMPT = '... '
+    def __init__(self, interpreter):
+        self.buffer = ''
+        self.interpreter = interpreter
+
+    def parse(self, string):
+        return self.interpreter.make_string_parser(string, filename='<stdin>').parse()
+
+    def get_input(self):
+        if self.buffer:
+            prompt = self.INCOMPLETE_PROMPT
+        else:
+            prompt = self.STATEMENT_PROMPT
+        try:
+            line = raw_input(prompt)
+            self.buffer = self.buffer + line
+        except KeyboardInterrupt:
+            self.buffer = ''
+            print ''
+
+    def evaluate(self):
+        try:
+            ast = self.parse(self.buffer)
+            result = self.interpreter.execute_program(ast)
+            self.buffer = ''
+            return result
+        except ParseException:
+            pass
+
+    def log(self, result):
+        if result is not None:
+            print self.interpreter.to_string(result)
+
+    def run(self):
+        while True:
+            self.get_input()
+            if self.buffer:
+                result = self.evaluate()
+                self.log(result)
+
+def enter_repl(interpreter):
+    repl = REPL(interpreter)
+    try:
+        repl.run()
+    except EOFError:
+        pass
+
+
+if __name__ == '__main__':
+    import argparse
+    argparser = argparse.ArgumentParser(description='Evaluate ECMAScript code')
+    argparser.add_argument(
+        '-e', '--eval',
+        help='Evaluate the given code'
+    )
+    argparser.add_argument(
+        'scripts', nargs='*', type=argparse.FileType('r'),
+        help='Script file(s) to execute'
+    )
+    arguments = argparser.parse_args()
+
+    import sys
+    from bigrig.interpreter import Interpreter
+    from bigrig.interpreter.objects.error import ErrorInstance
+    interpreter = Interpreter()
+    if arguments.scripts:
+        for i, script in enumerate(arguments.scripts):
+            result = interpreter.execute_string(script.read(), filename=script.name)
+            if isinstance(result, ErrorInstance):
+                sys.exit(result.get('toString').call(result, []))
+    elif arguments.eval:
+        result = interpreter.execute_string(arguments.eval, filename='<stdin>')
+        if isinstance(result, ErrorInstance):
+            sys.exit(result.get('toString').call(result, []))
+    else:
+        enter_repl(interpreter)
