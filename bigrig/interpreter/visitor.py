@@ -102,7 +102,7 @@ class EvaluationVisitor(NodeVisitor):
         return self.interpreter.RegExpConstructor.construct([pattern, node.flags])
 
     def visit_PropertyName(self, node):
-        return LiteralParser.parse_string(node.value)
+        return IdentifierParser.parse_string(node.value)
 
     def visit_ObjectProperty(self, node):
         name = self.visit(node.name)
