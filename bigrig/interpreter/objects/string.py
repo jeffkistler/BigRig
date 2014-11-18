@@ -273,12 +273,12 @@ class StringPrototype(StringInstance):
         """
         check_object_coercible(this)
         to_string = self.interpreter.to_string
-        s = to_string(this)
+        string = to_string(this)
         search_str, pos = get_arguments(arguments, count=2)
-        search_str = to_string(arguments[0])
+        search_str = to_string(search_str)
         pos = self.interpreter.to_integer(pos)
-        start = min(max(pos, 0), slen)
-        return s.rfind(search_str, start)
+        start = min(max(pos, 0), len(string))
+        return string.rfind(search_str, start)
 
     def locale_compare_method(self, this, arguments):
         """
@@ -302,10 +302,7 @@ class StringPrototype(StringInstance):
         """
         check_object_coercible(this)
         s = self.interpreter.to_string(this)
-        if len(arguments) > 0:
-            regexp = arguments[0]
-        else:
-            return [u'']
+        regexp = get_arguments(arguments, count=1)
         if not self.is_regexp(regexp):
             regexp = self.interpreter.RegExpConstructor.construct([regexp])
         re_exec = self.interpreter.RegExpPrototype.get('exec')
@@ -350,12 +347,14 @@ class StringPrototype(StringInstance):
         search_value, replace_value = get_arguments(arguments, count=2)
 
         if not is_callable(replace_value):
-            replace_func = lambda this, args: self.replace_value(replace_value, args)
+            replace_string = self.interpreter.to_string(replace_value)
+            replace_func = lambda this, args: self.replace_value(replace_string, args)
         else:
             replace_func = replace_value.call
 
         if self.is_regexp(search_value):
             if search_value.get('global') is not True:
+                match = None
                 for i in range(len(string)):
                     match = search_value.match(string[i:], i)
                     if match is not None:
@@ -371,21 +370,22 @@ class StringPrototype(StringInstance):
             else:
                 parts = []
                 i = 0
-                search_value.put('lastIndex', 0)
-                last_end = i
-                while not (i < 0 or i >= len(string)):
+                lastmatch = True
+                last_end = 0
+                while lastmatch and last_end < len(string):
                     match = search_value.match(string, i)
                     if match is not None:
                         parts.append(string[last_end:i])
                         e, captures = match
-                        arguments = [string[i:e]] + list(captures) + [i, string]
+                        last_end = e
+                        arguments = [string[i:last_end]] + list(captures) + [i, string]
                         replace_string = replace_func(Undefined, arguments)
                         replace_string = self.interpreter.to_string(replace_string)
                         parts.append(replace_string)
-                        i = last_end = e
+                        i = last_end + 1
                         search_value.put('lastIndex', last_end)
                     else:
-                        i = i + 1
+                        lastmatch = False
                 parts.append(string[last_end:len(string)])
                 return u''.join(parts)
         else:
@@ -531,19 +531,19 @@ class StringPrototype(StringInstance):
         check_object_coercible(this)
         to_string = self.interpreter.to_string
         to_integer = self.interpreter.to_integer
-        s = to_string(this)
-        length = len(s)
+        string = to_string(this)
+        length = len(string)
         start, end = get_arguments(arguments, count=2)
         start = to_integer(start)
         if end is Undefined:
             end = length
         else:
-            end = to_integer(arguments[1])
+            end = to_integer(end)
         final_start = min(max(start, 0), length)
         final_end = min(max(end, 0), length)
-        from_index = min(start, end)
-        to_index = max(start, end)
-        return s[from_index:to_index]
+        from_index = min(final_start, final_end)
+        to_index = max(final_start, final_end)
+        return string[from_index:to_index]
 
     def to_lower_case_method(self, this, arguments):
         """

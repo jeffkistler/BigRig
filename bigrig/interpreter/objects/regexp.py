@@ -131,6 +131,8 @@ class RegExpConstructor(FunctionInstance):
             pattern = ''
         else:
             pattern = self.interpreter.to_string(pattern)
+        if pattern == u'':
+            pattern = u'(?:)'
         if flags is Undefined:
             flags = ''
         else:

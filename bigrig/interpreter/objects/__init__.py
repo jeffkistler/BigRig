@@ -7,6 +7,7 @@ from ..types import (
 )
 from ..exceptions import ESTypeError
 
+
 class PropertyDescriptor(object):
     """
     Structure containing property flags and value or get/set functions.
@@ -102,8 +103,7 @@ def to_property_descriptor(interpreter, obj):
     Turn an ``Object`` into a ``PropertyDescriptor``.
     """
     # 8.10.5
-    # assert is object
-    if get_primitive_type(obj) is not ObjectType:
+    if not isinstance(obj, ObjectType):
         raise ESTypeError('Cannot convert to property descriptor')
     desc = PropertyDescriptor()
     if obj.has_property('enumerable'):
@@ -121,14 +121,18 @@ def to_property_descriptor(interpreter, obj):
     accessor = False
     if obj.has_property('get'):
         getter = obj.get('get')
-        if not is_callable(getter) and getter is not Undefined:
-            raise ESTypeError()
+        if not is_callable(getter):
+            if getter is not Undefined:
+                raise ESTypeError()
+            getter = None
         accessor = True
         desc.get = getter
     if obj.has_property('set'):
         setter = obj.get('set')
-        if not is_callable(setter) and setter is not Undefined:
-            raise ESTypeError()
+        if not is_callable(setter):
+            if setter is not Undefined:
+                raise ESTypeError()
+            setter = None
         accessor = True
         desc.set = setter
     if accessor and (desc.value is not None or desc.writable is not None):

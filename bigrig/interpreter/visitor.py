@@ -779,7 +779,7 @@ class EvaluationVisitor(NodeVisitor):
         obj = self.interpreter.to_object(self.get_value(val))
         old_env = self.interpreter.execution_context.lexical_environment
         new_env = old_env.new_object_environment(obj, old_env)
-        new_env.provide_this = True
+        new_env.environment_record.provide_this = True
         self.interpreter.execution_context.lexical_environment = new_env
         try:
             stmt = self.visit(node.statement)

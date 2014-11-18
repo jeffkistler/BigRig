@@ -139,7 +139,7 @@ class BaseParser(object):
                     value = self.parse_assignment_expression()
                     assignment = self.create_object_property(name, value)
                 else:
-                    name = next.value
+                    name = self.expect(IDENTIFIER).value
                     self.expect(LEFT_PAREN)
                     self.expect(RIGHT_PAREN)
                     body = self.parse_function_body()
@@ -152,7 +152,7 @@ class BaseParser(object):
                     value = self.parse_assignment_expression()
                     assignment = self.create_object_property(name, value)
                 else:
-                    name = next.value
+                    name = self.expect(IDENTIFIER).value
                     self.expect(LEFT_PAREN)
                     parameter = self.expect(IDENTIFIER).value
                     self.expect(RIGHT_PAREN)

@@ -20,8 +20,6 @@ def is_identifier_part(char):
     return char in IDENTIFIER_START_CHARS or ud.category(char) in IDENTIFIER_PART_CLASSES
     
 def is_whitespace_char(char):
-    if len(char) != 1:
-        print "WTF", char, len(char), type(char), ord(char)
     return char in WHITESPACE_CHARS or ud.category(char) == 'Zs'
 
 def is_line_terminator(char):

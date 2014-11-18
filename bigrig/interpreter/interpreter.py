@@ -189,6 +189,25 @@ class Interpreter(Conversions):
 
     def create_function(self, declaration, scope, strict):
         # 13.2
+        if strict and declaration.parameters:
+            seen = set()
+            for parameter in declaration.parameters:
+                name = IdentifierParser.parse_string(parameter)
+                if name in seen:
+                    raise ESSyntaxError(
+                        'Duplicate parameter names not allowed in strict mode'
+                    )
+                elif name in (u'eval', u'arguments'):
+                    raise ESSyntaxError(
+                        'Use of %s as a parameter name not allowed in strict mode' % name
+                    )
+                seen.add(name)
+        if strict and declaration.name:
+            name = IdentifierParser.parse_string(declaration.name)
+            if name in (u'eval', u'arguments'):
+                raise ESSyntaxError(
+                    'Use of %s as a function name is not allowed in strict mode' % name
+                )
         func = ScriptFunctionInstance(
             self, declaration, scope, strict
         )
@@ -202,8 +221,8 @@ class Interpreter(Conversions):
                 get=self.ThrowTypeError, set=self.ThrowTypeError,
                 enumerable=False, configurable=False
             )
-            func.set_property('caller', desc, False)
-            func.set_property('arguments', PropertyDescriptor.clone(desc), False)
+            func.define_own_property('caller', desc, False)
+            func.define_own_property('arguments', PropertyDescriptor.clone(desc), False)
         return func
 
     def visit_declarations(self, ast):

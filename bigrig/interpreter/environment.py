@@ -257,7 +257,10 @@ class Reference(object):
         """
         Returns whether the base component is a boolean, number or string.
         """
-        return get_primitive_type(self.base) in (BooleanType, NumberType, StringType)
+        if isinstance(self.base, ObjectType):
+            return False
+        primitive_type = get_primitive_type(self.base)
+        return primitive_type in (BooleanType, NumberType, StringType)
 
     def is_property_reference(self):
         """

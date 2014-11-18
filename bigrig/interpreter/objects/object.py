@@ -1,7 +1,10 @@
 """
 Specification objects for the ``Object`` built-in.
 """
-from . import PropertyDescriptor, is_data_descriptor, to_property_descriptor, from_property_descriptor
+from . import (
+    PropertyDescriptor, is_data_descriptor, to_property_descriptor,
+    from_property_descriptor, is_callable
+)
 from .base import ObjectInstance, FunctionInstance
 from .function import define_native_method
 from ..types import Undefined, Null, ObjectType, get_arguments, get_primitive_type
@@ -68,7 +71,7 @@ class ObjectConstructor(FunctionInstance):
         else:
             args = get_arguments(arguments, count=count)
             obj = args[0]
-        if get_primitive_type(obj) is not ObjectType:
+        if not isinstance(obj, ObjectInstance):
             string = self.interpreter.to_string(obj)
             raise ESTypeError('%s is not an object' % string)
         return args

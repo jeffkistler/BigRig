@@ -54,8 +54,7 @@ class Arguments(ObjectInstance):
                         get=g, set=p, configurable=True
                     )
                     arguments_map.define_own_property(name, name_desc, False)
-        if mapped_names:
-            obj.parameter_map = arguments_map
+        obj.parameter_map = arguments_map
         if not strict:
             desc = PropertyDescriptor(
                 value=func, writable=True, enumerable=False, configurable=True
@@ -74,7 +73,7 @@ class Arguments(ObjectInstance):
         """
         Specialized ``Get`` internal method.
         """
-        if not self.strict and self.parameter_map:
+        if not self.strict:
             is_mapped = self.parameter_map.get_own_property(name)
             if is_mapped is Undefined:
                 v = super(Arguments, self).get(name)

@@ -82,7 +82,6 @@ class BoundFunctionInstance(FunctionInstance):
     """
     A specialized class for functions returned by ``Function.prototype.bind``.
     """
-    ###    def __init__(self, interpreter, node, scope, strict):
     def __init__(self, interpreter, target_function, bound_args, bound_this):
         super(BoundFunctionInstance, self).__init__(interpreter)
         self.target_function = target_function
@@ -149,6 +148,11 @@ class EvalFunctionInstance(FunctionInstance):
     """
     A specialized class for the ``eval`` built-in function.
     """
+    def __init__(self, interpreter):
+        super(EvalFunctionInstance, self).__init__(interpreter)
+        self.set_property('length', 1)
+        self.prototype = interpreter.FunctionPrototype
+
     def call(self, this, arguments, direct=False):
         """
         15.1.2.1
@@ -208,6 +212,7 @@ class FunctionConstructor(FunctionInstance):
     """
     def __init__(self, interpreter):
         super(FunctionConstructor, self).__init__(interpreter)
+        self.prototype = interpreter.FunctionPrototype
         self.set_property('length', 1)
 
     def call(self, this, arguments):
@@ -224,19 +229,22 @@ class FunctionConstructor(FunctionInstance):
         num_args = len(arguments)
         if num_args == 0:
             body = ''
-        elif num_args == 1:
-            body = arguments[0]
         else:
-            parameter_list = u','.join(self.interpreter.to_string(arg) for arg in arguments[:-1])
+            parameter_list = arguments[:-1]
             body = arguments[-1]
         body = self.interpreter.to_string(body)
         if parameter_list:
             try:
-                parameter_list = self.interpreter.make_string_parser(parameter_list).parse_parameter_list()
+                parameters = u'%s)' % u','.join(self.interpreter.to_string(param) for param in parameter_list)
+                parameters = parameters.encode('utf-8')
+                parser = self.interpreter.make_string_parser(parameters)
+                parameter_list = parser.parse_parameter_list()
             except ParseException, e:
                 raise ESSyntaxError(e.message)
         try:
-            body = self.interpreter.make_string_parser(body).parse_function_body()
+            body = body.encode('utf-8')
+            parser = self.interpreter.make_string_parser(body)
+            body = parser.parse_source_elements()
         except ParseException, e:
             raise ESSyntaxError(e.message)
         strict = code_is_strict(body)
@@ -253,7 +261,7 @@ class FunctionConstructor(FunctionInstance):
         return func
 
 
-class FunctionPrototype(ObjectInstance):
+class FunctionPrototype(FunctionInstance):
     """
     The prototype object assigned to ``Function`` instances.
 
@@ -267,6 +275,12 @@ class FunctionPrototype(ObjectInstance):
         define_native_method(self, 'apply', self.apply_method, 2)
         define_native_method(self, 'call', self.call_method, 1)
         define_native_method(self, 'bind', self.bind_method, 1)
+
+    def call(self, this, arguments):
+        """
+        15.3.4
+        """
+        return Undefined
 
     def get_function_info(self, func):
         """
@@ -357,5 +371,5 @@ class FunctionPrototype(ObjectInstance):
             get=thrower, set=thrower, enumerable=False, configurable=False
         )
         f.define_own_property('caller', desc, False)
-        f.define_own_property('arguments', desc.clone(), False)
+        f.define_own_property('arguments', PropertyDescriptor.clone(desc), False)
         return f

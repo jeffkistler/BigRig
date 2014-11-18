@@ -106,7 +106,7 @@ class GlobalObject(ObjectInstance):
         """
         string = get_arguments(arguments, count=1)
         string = self.interpreter.to_string(string)
-        return urllib.unquote(string).decode('utf-8')
+        return urllib.unquote(string)
 
     def decode_uri_component_method(self, this, arguments):
         """
@@ -116,7 +116,7 @@ class GlobalObject(ObjectInstance):
         """
         string = get_arguments(arguments, count=1)
         string = self.interpreter.to_string(string)
-        return urllib.unquote(string).decode('utf-8')
+        return urllib.unquote(string)
 
     def encode_uri_method(self, this, arguments):
         """

@@ -3,8 +3,9 @@ Specification objects for the ``Boolean`` built-in.
 """
 from .base import ObjectInstance, FunctionInstance
 from .function import define_native_method
-from ..types import BooleanType, get_arguments, get_primitive_type
+from ..types import BooleanType, ObjectType, get_arguments, get_primitive_type
 from ..exceptions import ESTypeError
+
 
 class BooleanInstance(ObjectInstance, BooleanType):
     """

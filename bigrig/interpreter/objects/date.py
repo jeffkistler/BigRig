@@ -7,6 +7,7 @@ import math
 import operator
 from .base import ObjectInstance, FunctionInstance
 from .function import define_native_method
+from ..exceptions import ESRangeError
 from ..literals import LiteralParser, LiteralParseError
 from ..types import (
     NaN, inf, Undefined, Null, StringType, ObjectType, get_arguments,
@@ -375,13 +376,6 @@ def utc(t):
 #
 # Parser objects for the ECMAScript date time string format
 #
-
-class DateParseError(Exception):
-    """
-    Invalid ECMAScript date time formatted string.
-    """
-    pass
-
 
 class DateTimeParser(LiteralParser):
     """

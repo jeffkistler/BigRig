@@ -212,7 +212,7 @@ class ArrayPrototype(ArrayInstance):
         """
         to_object = self.interpreter.to_object
         array = to_object(this)
-        array_len = array.get('length')
+        array_length = array.get('length')
         length = self.interpreter.to_uint32(array_length)
         separator = u','
         if not length:
@@ -240,7 +240,7 @@ class ArrayPrototype(ArrayInstance):
         items = [o] + arguments
         index = 0
         for item in items:
-            if item.es_class == 'Array':
+            if getattr(item, 'es_class', None) == 'Array':
                 length = item.get('length')
                 for i in range(length):
                     p = unicode(i)
@@ -570,7 +570,7 @@ class ArrayPrototype(ArrayInstance):
         length = self.interpreter.to_uint32(o.get('length'))
         if length == 0:
             return -1
-        search_element, from_index = get_arguments(arguments, count=1)
+        search_element, from_index = get_arguments(arguments, count=2)
         from_index = self.interpreter.to_integer(from_index)
         if from_index >= 0:
             from_index = min(from_index, length - 1)
@@ -740,7 +740,7 @@ class ArrayPrototype(ArrayInstance):
             raise ESTypeError('callback is not a function')
         accumulator = None
         if len(arguments) < 2:
-            if length == 0 and num_args < 2:
+            if length == 0:
                 raise ESTypeError()
             for i in range(length - 1, -1, -1):
                 index = unicode(i)
