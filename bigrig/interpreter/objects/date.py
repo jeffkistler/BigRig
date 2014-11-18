@@ -7,7 +7,7 @@ import math
 import operator
 from .base import ObjectInstance, FunctionInstance
 from .function import define_native_method
-from ..exceptions import ESRangeError
+from ..exceptions import ESRangeError, ESTypeError
 from ..literals import LiteralParser, LiteralParseError
 from ..types import (
     NaN, inf, Undefined, Null, StringType, ObjectType, get_arguments,
@@ -461,7 +461,7 @@ class DateTimeParser(LiteralParser):
         """
         try:
             year, month, day = self.parse_date()
-            result = make_date(make_day(year, month-1, day-1), 0)
+            result = make_date(make_day(year, month - 1, day), 0)
             next_char = self.peek()
             if next_char == 'T':
                 hour, minutes, seconds, ms = self.parse_time()
@@ -542,7 +542,7 @@ class DateConstructor(FunctionInstance):
         """
         15.9.2
         """
-        obj = self.construct(arguments)
+        obj = self.construct([])
         return self.interpreter.to_string(obj)
 
     def construct(self, arguments):
@@ -557,23 +557,23 @@ class DateConstructor(FunctionInstance):
         elif num_args == 1:
             v = self.interpreter.to_primitive(arguments[0])
             if get_primitive_type(v) is StringType:
-                v = self.parse_method(None, [v])
+                return self.parse_method(None, [v])
             else:
                 v = to_number(v)
-            primitive_value = self.time_clip(v)
+                primitive_value = self.time_clip(v)
         else:
             def get_arguments(arguments, defaults):
                 values = []
                 num_arguments = len(arguments)
                 for i in range(7):
                     if i < num_arguments:
-                        v = to_number(arguments[0])
+                        v = to_number(arguments[i])
                     else:
                         v = defaults[i]
                     values.append(v)
                 return values
             year, month, date, hours, minutes, seconds, ms = get_arguments(
-                arguments, [Undefined, Undefined, 1, 0, 0, 0, 0]
+                arguments, [Undefined, 0, 1, 0, 0, 0, 0]
             )
             if not math.isnan(year) and 0 <= year <= 99:
                 year = 1900 + year
@@ -599,6 +599,8 @@ class DateConstructor(FunctionInstance):
             string = arguments[0]
         string = self.interpreter.to_string(string)
         primitive_value = parse_datetime(string)
+        primitive_value = self.time_clip(primitive_value)
+        primitive_value = utc(primitive_value)
         return self.make_date_instance(primitive_value)
 
     def utc_method(self, this, arguments):
@@ -1188,9 +1190,10 @@ class DatePrototype(DateInstance):
         t = self.get_value(this)
         if not finite(t):
             raise ESRangeError('Invalid time value')
+        t = utc(t)
         year, month, day = year_from_time(t), month_from_time(t), date_from_time(t)
         hour, minutes, seconds = hour_from_time(t), min_from_time(t), sec_from_time(t)
-        return u'%04d-%02d-%02dT%02d:%02d:%02dZ'
+        return u'%04d-%02d-%02dT%02d:%02d:%02dZ' % (year, month, day, hour, minutes, seconds)
 
     def to_json_method(self, this, arguments):
         """
