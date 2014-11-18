@@ -26,7 +26,39 @@ from the GitHub repository::
 Basic Usage
 ===========
 
-Currently only the parser aspect of the project has been implemented.
+Evaluating ECMAScript
+---------------------
+
+The ``setup.py`` installer will install a script named ``bigrig`` that provides
+a basic shell for executing scripts. With no arguments the script will launch
+an interactive read-evaluate-print loop::
+
+    $ bigrig
+    > (function() { return "Hello World!"; })()
+    Hello World!
+    >
+
+Press ``Ctrl+D`` to exit the shell, or ``Ctrl+C`` to reset the prompt.
+
+Positional filename arguments may be given, corresponding to script files that
+will be executed in the given order in the same execution context::
+
+    $ bigrig ./script.js ...
+
+The ``console`` object provides a single ``log`` method that will print the
+``toString`` representations of the given arguments::
+
+    $ bigrig 
+    > console.log("Hello World!");
+    Hello World!
+    undefined
+    >
+
+The ``--eval`` or ``-e`` flag can be specified to execute a string::
+
+    $ bigrig -e "console.log('test');"
+    test
+    $
 
 Parsing ECMAScript
 ------------------
